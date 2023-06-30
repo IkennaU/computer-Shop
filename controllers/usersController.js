@@ -26,7 +26,10 @@ const createNewUser = expressAsyncHandler(async (req, res) => {
     return res.status(400).json({ message: "All Fields Are Required" });
   }
   //   check for duplicates
-  const duplicate = await User.findOne({ username }).lean().exec();
+  const duplicate = await User.findOne({ username })
+    .collation({ locale: "en", strength: 2 })
+    .lean()
+    .exec();
   if (duplicate) {
     return res.status(409).json({ message: "Duplicate UserName" });
   }
@@ -43,7 +46,7 @@ const createNewUser = expressAsyncHandler(async (req, res) => {
 });
 
 // @desc Update A User
-// @route PATCH /Users
+// @route PUT /Users
 // @access Private Route
 
 const updateUser = expressAsyncHandler(async (req, res) => {
@@ -63,7 +66,10 @@ const updateUser = expressAsyncHandler(async (req, res) => {
     return res.status(400).json({ message: "User Not Found" });
   }
   // check for duplicates
-  const duplicate = await User.findOne({ username }).lean().exec();
+  const duplicate = await User.findOne({ username })
+    .collation({ locale: "en", strength: 2 })
+    .lean()
+    .exec();
   if (duplicate && duplicate?._id.toString() !== id) {
     return res.status(409).json({ message: "Duplicate Username" });
   }
