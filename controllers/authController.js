@@ -1,13 +1,13 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const asyncHandler = require("express-async-handler");
+const expressAsyncHandler = require("express-async-handler");
 
 // desc Login
 // @ route POST/auth
 // @access public
 
-const login = asyncHandler(async (req, res) => {
+const login = expressAsyncHandler(async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ message: "All Fields Are Required.." });
@@ -23,14 +23,18 @@ const login = asyncHandler(async (req, res) => {
 
   const accessToken = jwt.sign(
     {
-      UserInfo: { username: foundUser.username, roles: foundUser.roles },
+      UserInfo: {
+        username: foundUser.username,
+        _id: foundUser._id,
+        roles: foundUser.roles,
+      },
     },
     process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "1d" }
   );
   const refreshToken = jwt.sign(
     {
-      username: foundUser.username,
+      _id: foundUser._id,
     },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
@@ -39,7 +43,7 @@ const login = asyncHandler(async (req, res) => {
   res.cookie("jwt", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "None",
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
   //   send access token containing username and roles..
@@ -59,11 +63,11 @@ const refresh = (req, res) => {
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
-      asyncHandler(async (err, decoded) => {
+      expressAsyncHandler(async (err, decoded) => {
         if (err) {
           return res.status(403).json({ message: "Forbidden" });
         }
-        const foundUser = await User.findOne({ username: decoded.username });
+        const foundUser = await User.findById({ _id: decoded._id });
         if (!foundUser) {
           return res
             .status(401)
@@ -71,7 +75,7 @@ const refresh = (req, res) => {
         }
         const accessToken = jwt.sign(
           {
-            UserInfo: { username: foundUser.username, roles: foundUser.roles },
+            UserInfo: { _id: foundUser._id, roles: foundUser.roles },
           },
           process.env.ACCESS_TOKEN_SECRET,
           { expiresIn: "1d" }

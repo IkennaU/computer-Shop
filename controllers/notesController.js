@@ -1,11 +1,11 @@
 const Note = require("../models/Note");
 const User = require("../models/User");
-const asyncHandler = require("express-async-handler");
+const expressAsyncHandler = require("express-async-handler");
 
 // @desc Get all notes
 // @route GET /notes
 // @access Private
-const getAllNotes = asyncHandler(async (req, res) => {
+const getAllNotes = expressAsyncHandler(async (req, res) => {
   // Get all notes from MongoDB
   const notes = await Note.find().lean();
 
@@ -30,7 +30,7 @@ const getAllNotes = asyncHandler(async (req, res) => {
 // @desc Create new note
 // @route POST /notes
 // @access Private
-const createNewNote = asyncHandler(async (req, res) => {
+const createNewNote = expressAsyncHandler(async (req, res) => {
   const { user, title, text } = req.body;
 
   // Confirm data
@@ -62,7 +62,7 @@ const createNewNote = asyncHandler(async (req, res) => {
 // @desc Update a note
 // @route PATCH /notes
 // @access Private
-const updateNote = asyncHandler(async (req, res) => {
+const updateNote = expressAsyncHandler(async (req, res) => {
   const { id, user, title, text, completed } = req.body;
 
   // Confirm data
@@ -101,7 +101,7 @@ const updateNote = asyncHandler(async (req, res) => {
 // @desc Delete a note
 // @route DELETE /notes
 // @access Private
-const deleteNote = asyncHandler(async (req, res) => {
+const deleteNote = expressAsyncHandler(async (req, res) => {
   const { id } = req.body;
 
   // Confirm data
